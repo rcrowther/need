@@ -35,6 +35,8 @@ text-decoration: underline;
 .url_display {
 font-size:14px;
 line-height:16px;
+font-style: normal;
+color: #062;
 }
 
 /* under typeblock size, let titles run and pad sides */

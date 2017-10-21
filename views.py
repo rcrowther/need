@@ -18,45 +18,45 @@ from .forms import SearchForm
 
 
 #!
-class ModelViewSearch(View):
-    '''
-    View to handle incoming GETs, with information delivered by query.
-    Builtin one page template.
-    '''
-    need = None
-    search_fields = ''
-    form = SearchForm
+#class ModelViewSearch(View):
+    #'''
+    #View to handle incoming GETs, with information delivered by query.
+    #Builtin one page template.
+    #'''
+    #need = None
+    #search_fields = ''
+    #form = SearchForm
     
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if (self.need is None):
-            raise ImproperlyConfigured("Model view search '{0}' must have a Need class defined.".format(
-                self.__class__.__name__
-                ))
-        if (not self.search_fields):
-            raise ImproperlyConfigured("Model view search '{0}' must have a 'search_fields' attribute defined.".format(
-                self.__class__.__name__
-                ))
+    #def __init__(self, **kwargs):
+        #super().__init__(**kwargs)
+        #if (self.need is None):
+            #raise ImproperlyConfigured("Model view search '{0}' must have a Need class defined.".format(
+                #self.__class__.__name__
+                #))
+        #if (not self.search_fields):
+            #raise ImproperlyConfigured("Model view search '{0}' must have a 'search_fields' attribute defined.".format(
+                #self.__class__.__name__
+                #))
                 
 
-    def success(self, hits):
-        pass
+    #def success(self, hits):
+        #pass
         
-    def get(self, request, *args, **kwargs):
-        def build_results(results):
-            for r in results:
-               hits.append(r)
+    #def get(self, request, *args, **kwargs):
+        #def build_results(results):
+            #for r in results:
+               #hits.append(r)
                
-        query = request.GET.get('search', None)
-        #print('query:')
-        #print(query)
-        if query:
-            hits = []
-            self.need.actions.read(self.search_fields, query, build_results)
-            if hits:
-                self.success(hits)
-        form = self.form(initial=query)
-        return render(request, 'need/search.html', {'form': form})          
+        #query = request.GET.get('search', None)
+        ##print('query:')
+        ##print(query)
+        #if query:
+            #hits = []
+            #self.need.actions.read(self.search_fields, query, build_results)
+            #if hits:
+                #self.success(hits)
+        #form = self.form(initial=query)
+        #return render(request, 'need/search.html', {'form': form})          
 
 
 from .renderers import HitRendererText
@@ -150,6 +150,23 @@ class List(View):
 
 ##################################
 #! try on a URL
+
+from .forms import SearchForm
+
+def general_search(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', None)
+        if not query:
+            form = SearchForm()
+            return render(request, 'need/search.html', {'form': form})
+        else:
+            # 1. maybe do some pre-validation before we look in the index
+            # 2. Get some results  
+            # 3. redirect to some hits result page
+            return HttpResponseRedirect('/thanks/')
+    return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
+
+
 class PaperSearchHitView(SearchHitView):
     need = PaperNeed
     search_fields = 'title'
@@ -167,8 +184,6 @@ class PaperSearchHitImageView(SearchHitView):
     def indexdata_to_renderdata(self, result):
         return {'url' : "/paper/{}".format(result['id']), 'src': "/static/{}.jpg".format(result['id'])}
   
-
-
 class PaperList(List):
     need = PaperNeed
     search_fields = 'title'

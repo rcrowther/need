@@ -16,7 +16,7 @@ Installing the Whoosh module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install Whoosh code. Probably,:
 
-pip3 whoosh
+    pip3 whoosh
 
 In settings.py, declare the app,:
 
@@ -80,6 +80,7 @@ The meta can be given an 'app_label' parameter. The index will be stored in 'set
 
 Or no statement can be made, and Need will try to join the application name to the model name (for the above, 'wooshdb/fireworks_fireworkwhoosh').
 
+
 How final fields are decided
 ++++++++++++++++++++++++++++
 First, the 'fields' select the fields. Then the declarations decide how they are to be rendered. If the declarations are absent, the class scans the model and tries to guess what the field could be. Fairly often, the class will refuse to index the data.
@@ -91,6 +92,7 @@ There is huge depth to the capabilities of gathering data for a Whoosh index.
 
 Introductory material,
     https://whoosh.readthedocs.io/en/latest/schema.html
+
 
 Managers
 ~~~~~~~~
@@ -107,12 +109,12 @@ The default is Manager. The blocking versions are for multi-threading, discussed
 
 Manager offers a simple CRUD interface,
 
-bulk_add(it)
-add(**fields)
-bulk_delete(fieldname, text)
-merge(**fields)
-read(field, query, callback)
-size(self)
+    bulk_add(it)
+    add(**fields)
+    bulk_delete(fieldname, text)
+    merge(**fields)
+    read(field, query, callback)
+    size(self)
 
 So,:
 
@@ -159,6 +161,7 @@ The parser used is whoosh.qparser.SimpleParser, which is like most people expect
 
 Currently, the app is not good at exposing Whoosh abilities at querying. I've not wanted to add much to a general search engine interface https://whoosh.readthedocs.io/en/latest/searching.html. No stemming/variations, https://whoosh.readthedocs.io/en/latest/stemming.html. However, there is spell correction, https://whoosh.readthedocs.io/en/latest/spelling.html
 
+
 Non-Model Whoosh
 ~~~~~~~~~~~~~~~~
 A much freer API is available which is not conneted to Models. It inherits from api.Whoosh,:
@@ -182,9 +185,11 @@ Here, 'description' fails because no field exists to describe it.
 
 If you use this API, it is your responsibility to make decisions about what to store where. For some cases, you may prefer this.
 
+
 Rendering Need classes as forms and results
 -------------------------------------------
 The need app contains code to help render search forms and results.
+
 
 Hits listing
 ~~~~~~~~~~~~
@@ -271,7 +276,7 @@ The view may contain code like this,:
             query = request.GET.get('query', None)
             if not query:
                 form = SearchForm()
-                return render(request, 'need/one_page_search.html', {'form': form})
+                return render(request, 'need/search.html', {'form': form})
             else:
                 # 1. maybe do some pre-validation before we look in the index
                 # 2. Get some results  
@@ -279,7 +284,7 @@ The view may contain code like this,:
                 return HttpResponseRedirect('/thanks/')
         return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
         
-Note that this code aggressivly bars alternative HTTP methods.
+Note that this code aggressivly bars alternative HTTP methods. Note also that the template 'search.html' is the minimum of HTML. You either replace it or work on the CSS.
 
 If you do not want to work on styling immediately, try SearchForm. This is a TextInputForm with template and CSS built in (like an admin form, but more general),:
 
@@ -290,7 +295,7 @@ If you do not want to work on styling immediately, try SearchForm. This is a Tex
             query = request.GET.get('query', None)
             if not query:
                 form = SearchForm()
-                return render(request, 'need/one_page_search.html', {'form': form})
+                return render(request, 'need/search.html', {'form': form})
             else:
                 # 1. maybe do some pre-validation before we look in the index
                 # 2. Get some results  
@@ -298,13 +303,22 @@ If you do not want to work on styling immediately, try SearchForm. This is a Tex
                 return HttpResponseRedirect('/thanks/')
         return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
 
+Looks like this,
+
+.. figure:: https://raw.githubusercontent.com/rcrowther/need/master/text/images/searchbox.png
+    :width: 160 px
+    :alt: search box screenshot
+    :align: center
+
+which will do me fine (it's responsive, too), but if you are the kind who freaks if it's not Bootstrap, time to flex your creativity.
+
 Usually, at this point, to fill out a Django form, you would fill out,: 
 
     # 1. maybe do some pre-validation before we look in the index
     # 2. Get some results  
     # 3. redirect to some hits result page
 
-But we have left this unfinished. For a form like this, the results are the delivery. There is no side-effect database modification step. So you would redirect to a listings page (like the admin lists). The code would be like this,:
+But I have left this unfinished. For a form like this, the results are the delivery. There is no side-effect database modification step. So you would redirect to a listings page (like the admin lists). If you pasted the list view above, like this,:
 
 from django.http import HttpResponseRedirect
 
@@ -320,7 +334,7 @@ from django.http import HttpResponseRedirect
                 return HttpResponseRedirect('/search/list?' + query)
         return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
         
-That gives you a ready-made one page search, something like the front page of DuckDuckGo and Google. However...
+That gives you a ready-made one page search, something like the front page of DuckDuckGo and Google. With another month of work and a team of five. However...
 
 
 Search and results on one page
@@ -419,7 +433,10 @@ Well, it's something:
 
 
 
-===Inheritance
+Inheritance
+-------------
+TODO
+
 
 Need and others compared
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -428,10 +445,6 @@ It's no use to compare Django-Whoosh_ to Need. Django-Whoosh is the tightest cod
 Compared to Haystack_, for most if not all people, Haystack is the choice. Haystack is a well-established, much-loved Django app. Need is home-brew and limited. It uses only Whoosh, which some people regard as no good. But Need is my API. I like my API. That's why I stick with it.
 
 
-
-
 .. _Xapian: https://xapian.org/
-
 .. _Haystack: http://haystacksearch.org/
-
 .. _Django Woosh: https://github.com/JoeGermuska/django-whoosh/blob/master/django_whoosh/managers.py

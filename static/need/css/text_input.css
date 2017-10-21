@@ -46,7 +46,10 @@ background: #eee;
 }
 
 .search-button:hover {
-border: 1px solid #666;
+border-top: 1px solid #999;
+border-left: 1px solid #999
+border-bottom: 1px solid #ccc;
+border-right: 1px solid #ccc;
 background: #ddd;
 }
 

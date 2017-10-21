@@ -51,7 +51,7 @@ class HitRendererText(HitRenderer):
     '''
     row_data = [{'url': ..., 'title': ..., 'teaser': ... }]
     '''
-    element_template = '<h3><a href="{url}">{title}</a></h3><div class="url_display">{url}</div><div class="teaser">{teaser}</div>'
+    element_template = '<h3><a href="{url}">{title}</a></h3><cite class="url_display">{url}</cite><div class="teaser">{teaser}</div>'
     class Media:
         css = {'screen' : ('need/css/text_hits.css',)}
         
