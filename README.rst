@@ -46,7 +46,7 @@ Pick an app with models to include in Whoosh. Create a file 'need.py'. Put this,
        make=IdField(stored=True)
     
        class Meta:
-         whoosh_index = 'firework'
+         need_index = 'firework'
          model = Firework
          fields = ['name', 'description', 'effect', 'make']
   
@@ -74,7 +74,7 @@ The Meta is where you store any of the options for how this Whoosh index will wo
 
 Paths
 +++++
-The meta can accept a 'whoosh_index' parameter which is an override of other computation. The index will be at 'settings.WHOOSH + whoosh_index'  (for the above, 'wooshdb/firework')
+The meta can accept a 'need_index' parameter which is an override of other computation. The index will be at 'settings.WHOOSH + need_index'  (for the above, 'wooshdb/firework')
 
 The meta can be given an 'app_label' parameter. The index will be stored in 'settings.WHOOSH + app_label _ class_name' (for the above with app_label = 'dragon', 'wooshdb/dragon_fireworkwhoosh').
 
@@ -129,7 +129,7 @@ The ManagerManager managers might be defined in a Need class like this,:
     ...
     from whoosh.managers import ManagerManager
     
-    class FireworkWhoosh(ModelWhoosh):
+    class FireworkNeed(ModelNeed):
        ...
        manager = ManagerManager()
        class Meta:
@@ -273,7 +273,7 @@ The view may contain code like this,:
             
     def general_search(request):
         if request.method == 'GET':
-            query = request.GET.get('query', None)
+            query = request.GET.get('search', None)
             if not query:
                 form = SearchForm()
                 return render(request, 'need/search.html', {'form': form})
@@ -292,7 +292,7 @@ If you do not want to work on styling immediately, try SearchForm. This is a Tex
 
     def general_search(request):
         if request.method == 'GET':
-            query = request.GET.get('query', None)
+            query = request.GET.get('search', None)
             if not query:
                 form = SearchForm()
                 return render(request, 'need/search.html', {'form': form})
@@ -312,7 +312,7 @@ Looks like this,
 
 which will do me fine (it's responsive, too), but if you are the kind who freaks if it's not Bootstrap, time to flex your creativity.
 
-Usually, at this point, to fill out a Django form, you would fill out,: 
+Usually, at this point, to fill out a Django form, you would,: 
 
     # 1. maybe do some pre-validation before we look in the index
     # 2. Get some results  
@@ -324,17 +324,17 @@ from django.http import HttpResponseRedirect
 
     def general_search(request):
         if request.method == 'GET':
-            query = request.GET.get('query', None)
+            query = request.GET.get('search', None)
             if not query:
                 form = SearchForm()
                 return render(request, 'need/one_page_search.html', {'form': form})
             else:
-                # 1. (Maybe) some verificatiton or welsome action
-                # 2. Go to listings page, do the index query there
-                return HttpResponseRedirect('/search/list?' + query)
+                return HttpResponseRedirect('/fireworks/list?search=' + query)
         return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
-        
-That gives you a ready-made one page search, something like the front page of DuckDuckGo and Google. With another month of work and a team of five. However...
+
+DRY yourself off with a reverse(), for illustration I'm explicit.
+
+That gives you a ready-made one page search, something like the front page of DuckDuckGo and Google. Another month of work and a team of five. However...
 
 
 Search and results on one page

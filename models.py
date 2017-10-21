@@ -24,7 +24,7 @@ from .fields import TextField, IdField
 # autofield automatic inclusion if present?
       
 #! make as a dict
-def default_woosh_field(klass):
+def default_need_field(klass):
     '''
     Given a Model Field, return a guess for a Whoosh field.
     A rough-guess at likely sense, not a definition of what
@@ -67,28 +67,28 @@ class DeclarativeFieldsMetaclass(type):
         base_fields = {}
         for base in new_class.__mro__:
             # Collect fields from base class.
-            if hasattr(base, 'whoosh_fields'):
-                base_fields.update(base.whoosh_fields)
+            if hasattr(base, 'need_fields'):
+                base_fields.update(base.need_fields)
 
             # Field shadowing.
             for attr, value in base.__dict__.items():
                 if value is None and attr in base_fields:
                     base_fields.pop(attr)
                     
-        if (not hasattr(new_class, 'whoosh_fields')):
-            new_class.whoosh_fields = {}
-        new_class.whoosh_fields.update(base_fields)
-        new_class.whoosh_fields.update(current_fields)
+        if (not hasattr(new_class, 'need_fields')):
+            new_class.need_fields = {}
+        new_class.need_fields.update(base_fields)
+        new_class.need_fields.update(current_fields)
         return new_class
         
         
 
-class WooshOptions:
+class NeedOptions:
     def __init__(self, app_label, module, class_name, options=None):
-        self.whoosh_index = getattr(options, 'whoosh_index', None)
-        if not self.whoosh_index:
-            self.whoosh_index = "{0}_{1}".format(app_label, class_name)  
-        self.whoosh_base = getattr(options, 'whoosh_base') 
+        self.need_index = getattr(options, 'need_index', None)
+        if not self.need_index:
+            self.need_index = "{0}_{1}".format(app_label, class_name)  
+        self.need_base = getattr(options, 'need_base') 
         self.module = module
         self.class_name = class_name
         self.requested_fields = getattr(options, 'fields')
@@ -104,9 +104,9 @@ class WooshOptions:
         self.schema = None
 
     def __str__(self):
-        return "WooshOptions(whoosh_index:{0}, whoosh_base:{1}, module:{2}, model:{3}, requested_fields:{4}, declared_fields:{5}, schema_fields:{6})".format(
-        self.whoosh_index,
-        self.whoosh_base,
+        return "NeedOptions(need_index:{0}, need_base:{1}, module:{2}, model:{3}, requested_fields:{4}, declared_fields:{5}, schema_fields:{6})".format(
+        self.need_index,
+        self.need_base,
         self.module,
         self.model,
         self.requested_fields,
@@ -115,7 +115,7 @@ class WooshOptions:
         )
 
 
-class WhooshMetaclass(DeclarativeFieldsMetaclass):
+class NeedMetaclass(DeclarativeFieldsMetaclass):
     def _validate_raw_opts(mcs, module, class_name, opts):
         if not settings.WHOOSH:
             raise TypeError("Whoosh class  {0}.{1} must have an available setting 'WHOOSH' to define the base folder.".format(
@@ -163,19 +163,19 @@ class WhooshMetaclass(DeclarativeFieldsMetaclass):
                     )
         return b
         
-    def _first_run(mcs, whoosh_index, whoosh_schema):
-        if not exists_in(settings.WHOOSH, whoosh_index):
-            create_in(settings.WHOOSH, whoosh_schema, whoosh_index)
+    def _first_run(mcs, need_index, whoosh_schema):
+        if not exists_in(settings.WHOOSH, need_index):
+            create_in(settings.WHOOSH, whoosh_schema, need_index)
 
 
     def __new__(mcs, name, bases, attrs):
-        #print('new WhooshMetaclass : ' + name)
+        #print('new NeedMetaclass : ' + name)
         super_new = super().__new__
 
         # This metaclass will run on a base model such as Whoosh or 
-        # ModelWhoosh. We want to check for required attributes and
+        # ModelNeed. We want to check for required attributes and
         # build meta info, but not on bases themselves.
-        parents = [b for b in bases if isinstance(b, WhooshMetaclass)]
+        parents = [b for b in bases if isinstance(b, NeedMetaclass)]
         if not parents:
             return super_new(mcs, name, bases, attrs)
 
@@ -192,26 +192,26 @@ class WhooshMetaclass(DeclarativeFieldsMetaclass):
         new_class = super_new(mcs, name, bases, attrs)  
 
         # load the fields to the options (now we have them)
-        opts.declared_fields = new_class.whoosh_fields
+        opts.declared_fields = new_class.need_fields
                     
         #print('meta meta:' + str(attrs))
 
         #get the base details for the whoosh index path
-        whoosh_index = getattr(opts, 'whoosh_index', None)
+        need_index = getattr(opts, 'need_index', None)
         app_label = getattr(opts, 'app_label', None)
-        if ((whoosh_index is None) and (app_label is None)):
+        if ((need_index is None) and (app_label is None)):
             app_config = apps.get_containing_app_config(module)
             if app_config is None:
                 raise ImproperlyConfigured(
-                    "Whoosh class {0}.{1} doesn't declare an explicit whoosh_index or app_label and isn't in an application in INSTALLED_APPS.".format(module, name)
+                    "Whoosh class {0}.{1} doesn't declare an explicit need_index or app_label and isn't in an application in INSTALLED_APPS.".format(module, name)
                 )
             else:
                 app_label = app_config.label
         new_class._validate_raw_opts(module, name, opts)
-        opts.whoosh_base = settings.WHOOSH
+        opts.need_base = settings.WHOOSH
         
         # make the meta options class, filtering unwanted info
-        clean_opts = new_class._meta = WooshOptions(app_label, module, name, opts) 
+        clean_opts = new_class._meta = NeedOptions(app_label, module, name, opts) 
         
         # catch a few errors, for good reports
         new_class._validate_clean_opts(clean_opts)
@@ -222,7 +222,7 @@ class WhooshMetaclass(DeclarativeFieldsMetaclass):
         #print('new_class._meta:' + str(new_class._meta))
 
         # if needed, create index folders
-        new_class._first_run(new_class._meta.whoosh_index, whoosh_schema) 
+        new_class._first_run(new_class._meta.need_index, whoosh_schema) 
         
         # set managers
         managers = {k:v for k,v in attrs.items() if isinstance(v, BaseManager)}
@@ -245,17 +245,17 @@ class WhooshMetaclass(DeclarativeFieldsMetaclass):
 
         
         
-class Whoosh(metaclass=WhooshMetaclass):
+class Whoosh(metaclass=NeedMetaclass):
     pass
 
 
 
-class ModelWhooshMetaclass(WhooshMetaclass):
+class ModelNeedMetaclass(NeedMetaclass):
     def _validate_clean_opts(mcs, opts):
         model = getattr(opts, 'model', None)
         if model is None:
                 raise ImproperlyConfigured(
-                    "ModelWhoosh class {0}.{1} must declare a 'model' attribute.".format(
+                    "ModelNeed class {0}.{1} must declare a 'model' attribute.".format(
                     opts.module, 
                     opts.class_name
                     )
@@ -264,7 +264,7 @@ class ModelWhooshMetaclass(WhooshMetaclass):
         for fieldname in opts.requested_fields:
             if fieldname not in model_fieldnames:
                 raise ImproperlyConfigured(
-                    "ModelWhoosh class {0}.{1} requests a field '{2}' not in Model {3}.".format(
+                    "ModelNeed class {0}.{1} requests a field '{2}' not in Model {3}.".format(
                     opts.module, 
                     opts.class_name, 
                     fieldname,
@@ -283,7 +283,7 @@ class ModelWhooshMetaclass(WhooshMetaclass):
                 b[fieldname] = declared
             else:
                 ## can it be defaulted?
-                defaulted = default_woosh_field(opts.model_fieldmap[fieldname])
+                defaulted = default_need_field(opts.model_fieldmap[fieldname])
                 if defaulted:
                     b[fieldname] = defaulted
                 else:
@@ -305,7 +305,7 @@ class ModelWhooshMetaclass(WhooshMetaclass):
         return new_class
         
         
-class ModelWhoosh(metaclass=ModelWhooshMetaclass):
+class ModelNeed(metaclass=ModelNeedMetaclass):
     pass
 
 

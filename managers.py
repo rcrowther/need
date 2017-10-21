@@ -9,8 +9,8 @@ import time
 #! auto-init with this data
 class BaseManager:    
     def __init__(self):
-        self._whoosh_base = None
-        self._whoosh_index = None
+        self._need_base = None
+        self._need_index = None
         self._whoosh_schema = None
         self._schema_fields = None
         self.model = None
@@ -18,8 +18,8 @@ class BaseManager:
         self.name = None
         
     def contribute_to_class(self, opts):
-        self._whoosh_base = opts.whoosh_base
-        self._whoosh_index = opts.whoosh_index
+        self._need_base = opts.need_base
+        self._need_index = opts.need_index
         self._whoosh_schema = opts.schema
         self._schema_fields = opts.schema_fields
         self.model = opts.model
@@ -44,7 +44,7 @@ class Manager(BaseManager):
 
     def bulk_add(self, it):
         start = time.time()
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         end = time.time()
         print('opendir', 'took', str(end - start), 'time')
         start = time.time()
@@ -64,7 +64,7 @@ class Manager(BaseManager):
         @param fields keys for the schema, values for values. 
         '''
         start = time.time()
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         end = time.time()
         print('opendir', ' took', str(end - start), 'time')
         start = time.time()
@@ -89,7 +89,7 @@ class Manager(BaseManager):
         # unusable on non-Model indexes
         # will throw error due to self.pk_fieldname?
         # assert/except?
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
         writer.delete_by_term(self.pk_fieldname, key, searcher=None)
         writer.commit() 
@@ -103,7 +103,7 @@ class Manager(BaseManager):
         @param fieldname key to match against
         @param text match value. 
         '''
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
         writer.delete_by_term(fieldname, text, searcher=None)
         writer.commit() 
@@ -120,7 +120,7 @@ class Manager(BaseManager):
         '''
         # "It is safe to use ``update_document`` in place of ``add_document``; if
         # there is no existing document to replace, it simply does an add."
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
         writer.update_document(**fields)
         writer.commit() 
@@ -131,7 +131,7 @@ class Manager(BaseManager):
         start = time.time()
         end = time.time()
         print('opendir', ' took', str(end - start), 'time')
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         r = None
         with ix.searcher() as searcher:
             start = time.time()
@@ -143,7 +143,7 @@ class Manager(BaseManager):
         ix.close()
 
     def size(self):
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         r = ix.doc_count()
         ix.close()
         return r
@@ -160,7 +160,7 @@ class ManagerManager(Manager):
         self.ix.optimize()
     
     def load(self):
-        ix = open_dir(self._whoosh_base, self._whoosh_index)
+        ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
         for o in self.model.objects.all():
             data = dict([(fn, str(getattr(o, fn))) for fn in self._schema_fields])
@@ -197,8 +197,8 @@ class BlockingManagerManager(Manager):
     def contribute_to_class(self, opts):
         super().contribute_to_class(opts)
         #self.threadLock = threading.Lock()
-        #self.ix = open_dir(self._whoosh_base, self._whoosh_index)
-        info = assert_index_registry(self._whoosh_base, self._whoosh_index)
+        #self.ix = open_dir(self._need_base, self._need_index)
+        info = assert_index_registry(self._need_base, self._need_index)
         self.ix = info.directory
         self.threadLock = info.lock
         
@@ -232,7 +232,7 @@ class BlockingManager(Manager):
     def contribute_to_class(self, opts):
         super().contribute_to_class(opts)
         self.threadLock = threading.Lock()
-        self.ix = open_dir(self._whoosh_base, self._whoosh_index)
+        self.ix = open_dir(self._need_base, self._need_index)
         
     def bulk_add(self, it):
         self.threadLock.acquire()

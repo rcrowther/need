@@ -13,6 +13,7 @@ from django.core.paginator import InvalidPage, Paginator
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
 from .forms import SearchForm
+from django.core.paginator import Paginator
 
 # Model form,like academic search?
 
@@ -155,7 +156,9 @@ from .forms import SearchForm
 
 def general_search(request):
     if request.method == 'GET':
-        query = request.GET.get('query', None)
+        query = request.GET.get('search', None)
+        print('query:')
+        print(query)
         if not query:
             form = SearchForm()
             return render(request, 'need/search.html', {'form': form})
@@ -163,7 +166,7 @@ def general_search(request):
             # 1. maybe do some pre-validation before we look in the index
             # 2. Get some results  
             # 3. redirect to some hits result page
-            return HttpResponseRedirect('/thanks/')
+            return HttpResponseRedirect('/need/list?search=' + query)
     return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
 
 
