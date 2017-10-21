@@ -1,0 +1,50 @@
+
+#hits {
+width: 600px;
+margin: 0 auto 0 auto;
+}
+
+
+h3 {
+font-size:18px;
+font-weight:400;
+line-height:22px;
+margin-top: 26px;
+white-space: nowrap;
+overflow: hidden;
+-ms-text-overflow: ellipsis;
+-o-text-overflow: ellipsis;
+text-overflow: ellipsis;
+line-height: 1.22;
+}
+
+h3 > a {
+color: #3a7fb4;
+}
+
+h3 > a:visited {
+color: #5b3ab4;
+}
+
+h3:hover {
+color: #084999;
+text-decoration: underline;
+}
+
+
+.url_display {
+font-size:14px;
+line-height:16px;
+}
+
+/* under typeblock size, let titles run and pad sides */
+@media screen and (max-width: 600px) {
+#hits{
+width: 100%;
+padding:0 1.5em;
+}
+h3 {
+white-space: normal;
+overflow: visible;
+}
+}

@@ -1,0 +1,122 @@
+class SearchView(TemplateView):
+    '''
+    View to handle incoming GETs, with information delivered by query.
+    '''
+    template_name = None
+    need = None
+    search_fields = ''
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if (self.need is None):
+            raise ImproperlyConfigured("Generic search view '{0}' must have a need class defined.".format(
+                self.__class__.__name__
+                ))
+
+    def indexdata_to_renderdata(self, result):
+        ''' Hook for processing generic results before template'''
+        return result
+        
+    def get(self, request, *args, **kwargs):
+        def build_results(results):
+            for r in results:
+               hits.append(self.indexdata_to_renderdata(r))
+               
+        query = request.GET.get('q', None)
+        #print('query:')
+        #print(query)
+        
+        if not query:
+            context  = {
+            #'media' : 'search.css',
+            }        
+        else:
+            hits = []
+
+            self.need.actions.read(self.search_fields, query, build_results)
+
+            if (not hits):
+                hits = [{'title' :"no results", 'url' :'nonsense/'}]
+                context  = {
+                    #'media' : 'search.css',
+                    'query' : query,
+                    'hits' : hits
+                    }          
+            else:
+                context  = {
+                    #'media' : 'search.css',
+                    'query' : query,
+                    'hits' : hits
+                    }
+        ctx = super().get(request, *args, **context)
+        #print('ctx:')
+        #print(str(context))
+        return ctx
+====        
+def general_search(request):
+    if request.method == 'GET':
+        query = request.GET.get('search', None)
+        print('query' + str(query))
+
+        if not query:
+            form = SearchForm()
+            return render(request, 'need/one_page_search.html', {'form': form})
+        else:
+            # 1. maybe do some pre-validation before we look in the index
+            # 2. Get some results  
+                 
+            # 3. redirect to some hits result page
+            return HttpResponseRedirect('/thanks/')
+    return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
+
+
+=============
+Need contains a kind of generic view. Define the attributes from a Need (either kind),:
+
+    from need import views
+    
+    class FireworkSearchView(views.SearchView):
+        template_name = 'need/search.html'
+        need = FireworkNeed
+        search_fields = 'title'
+        
+The most interesting attribute in the context is 'hits', which carries the results of any 'stored' fields in the original Need class. It also contains the query from the URL.
+
+SearchView is not very useful. You need to pass data to it via a query, and you need to make a template. Possibly more interesting, and heading towards being an admin form, is SearchForm. Like an admin form, this has a template and CSS builtin (you can override).
+
+SearchForm requires a method to tell it how to change the hit data into the data the template accepts ('title', 'title_url', 'teaser', 'spot_data' attributes),:
+
+    class PaperNeedSearchView(SearchForm):
+        need = PaperNeed
+        search_fields = 'title'
+      
+        def result_to_hit(self, result):
+            return {
+                'title': result['title'],
+                'title_url' : "/paper/{}".format(result['id']),
+                'teaser' : 'I was lying on a beach at Malibu...'
+                }
+          
+
+Now you got a page which looks like a general-search-engine,
+
+.. figure:: https://raw.githubusercontent.com/rcrowther/django-category-collection/master/text/images/terms_in_a_base.png
+    :width: 160 px
+    :alt: search view screenshot
+    :align: center
+    
+If you want to customise views.SearchForm, it's unusual. It is an unposted input box. So has no form. Override or replace the template. The template is not big. 
+
+==============
+The handle code above is wrapped a model defintion and view in ModelViewSearch. ModelViewSearch must have a Need class and search fields defined. This is heavy configuration for not much code, but here it is,:
+              
+    class FireworkViewSearch(ModelViewSearch):
+        need = FireworkNeed
+        search_fields = 'title'
+            
+        def success(self, hits):
+            return HttpResponseRedirect('/hits_list/')
+            
+After that, you can add this line to 'urls.py'. Which, if you have got this far, is pleasant,:
+
+    url(r'^search$', views.FireworkViewSearch.as_view(), name='search'),

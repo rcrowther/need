@@ -1,0 +1,16 @@
+
+#hits {
+min-width: 833px;
+margin: 0 6px;
+}
+
+#hits > li {
+display: inline-block;
+vertical-align:top;
+margin: 12px 6px;
+}
+
+#hits img {
+width: 220px;
+border: 0;
+}

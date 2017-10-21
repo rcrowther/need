@@ -1,0 +1,23 @@
+{% load i18n %} 
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block html_title %}Empty title{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block head_tags %}{% endblock %}
+  </head>
+
+  <body>
+    <section id="typeblock">
+      <header>
+      {% block header %}Empty Header{% endblock %}
+      </header>
+      {% block content %}{% endblock %}
+      <footer>
+      {% block footer %}Empty Footer{% endblock %}
+      </footer>
+    </section>
+  </body>
+</html>

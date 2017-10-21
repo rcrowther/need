@@ -1,0 +1,27 @@
+{% extends "need_base.html" %}
+{% load static %}
+{% load i18n %} 
+
+{% block head_tags %}
+{{ media }}
+<link rel="stylesheet" type="text/css" href="{% static "need/css/search_hits.css" %}" />
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+
+{% block content %}
+{% if suggestions %}
+    <p>Did you mean,</p>
+    {{ suggestions }}
+{% endif %}
+
+{% if hits %}
+<ul id="hits">
+    {{ hits }}
+</ul>
+{% endif %}
+
+{% endblock %}
+

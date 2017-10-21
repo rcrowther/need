@@ -1,0 +1,38 @@
+* {
+margin: 0;
+padding: 0;
+font-weight: normal;
+}
+
+
+body {
+font-family: arial,sans-serif;
+font-size:12px;
+line-height:18px;
+color: #666;
+}
+
+header {
+display:block;
+background-color: #efe;
+padding:16px 0 12px 0;
+border-bottom: 1px solid #d3f8db;
+}
+
+p{
+margin-top:6px;
+}
+
+a {
+font-weight:400;
+text-decoration: none;
+}
+
+li {
+ list-style-type: none;
+}
+
+#typeblock{
+}
+
+
