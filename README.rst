@@ -15,17 +15,17 @@ Some people do not like Whoosh because it is slow. Programs that interface c cod
 
 Installing the Whoosh module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Install Whoosh code. Probably,:
+Install Whoosh code. Probably, ::
 
     pip3 whoosh
 
-In settings.py, declare the app,:
+In settings.py, declare the app, ::
 
     INSTALLED_APPS = [
         'whoosh.apps.WhooshConfig',
     ]
 
-and declare a file route where indexes will be stored,:
+and declare a file route where indexes will be stored, ::
 
     WHOOSH = os.path.join(BASE_DIR, 'wooshdb')
 
