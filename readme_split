@@ -1,49 +1,5 @@
 
 
-Auto-edits
------------
-TODO: signals
-
-
-Making queries - read()
------------------------
-The builtin managers offer the most basic possibility for reading, ::
-
-    read(field, query, callback)
-
-So, ::
-
-    FireworkNeed.actions.read('author', 'fred', lambda x : print(str(x)))
-
-The parser used is whoosh.qparser.SimpleParser, which is like most people expect of a general search engine. It handles '-', quoted literals, and ORs multiple terms.
-
-Currently, the app is not good at exposing Whoosh abilities at querying. I've not wanted to add much to a general search engine interface https://whoosh.readthedocs.io/en/latest/searching.html. No stemming/variations, https://whoosh.readthedocs.io/en/latest/stemming.html. However, there is spell correction, https://whoosh.readthedocs.io/en/latest/spelling.html
-
-
-Non-Model Whoosh
-~~~~~~~~~~~~~~~~
-A much freer API is available which is not conneted to Models. It inherits from models.Need,:
-
-
-    from need.models import Need
-    
-    class FireworkNeed(Need):
-       ...
-  
-This api has no need for a model declaration. 'fields' is still required, but takes information from declared statements only. If field entries do not match a declaration, they will fail, ::
-
-    from need.models import Need
-    
-    class FireworkNeed(Need):
-       title = TextField(stored=True)
-       class Meta:
-           fields = ['title', 'description']
-     
-Here, 'description' fails because no field exists to describe it.
-
-If you use this API, it is your responsibility to make decisions about what to store where. For some cases, you may prefer this.
-
-
 Rendering Need classes as forms and results
 -------------------------------------------
 The need app contains code to help render search forms and results.
