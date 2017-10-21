@@ -17,49 +17,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Model form,like academic search?
 
-
-#!
-#class ModelViewSearch(View):
-    #'''
-    #View to handle incoming GETs, with information delivered by query.
-    #Builtin one page template.
-    #'''
-    #need = None
-    #search_fields = ''
-    #form = SearchForm
-    
-    #def __init__(self, **kwargs):
-        #super().__init__(**kwargs)
-        #if (self.need is None):
-            #raise ImproperlyConfigured("Model view search '{0}' must have a Need class defined.".format(
-                #self.__class__.__name__
-                #))
-        #if (not self.search_fields):
-            #raise ImproperlyConfigured("Model view search '{0}' must have a 'search_fields' attribute defined.".format(
-                #self.__class__.__name__
-                #))
-                
-
-    #def success(self, hits):
-        #pass
-        
-    #def get(self, request, *args, **kwargs):
-        #def build_results(results):
-            #for r in results:
-               #hits.append(r)
-               
-        #query = request.GET.get('search', None)
-        ##print('query:')
-        ##print(query)
-        #if query:
-            #hits = []
-            #self.need.actions.read(self.search_fields, query, build_results)
-            #if hits:
-                #self.success(hits)
-        #form = self.form(initial=query)
-        #return render(request, 'need/search.html', {'form': form})          
-
-
 from .renderers import HitRendererText
 
 #! what about zero return
