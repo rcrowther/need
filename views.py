@@ -9,11 +9,11 @@ from paper.need import PaperNeed
 from django import forms
 
 from django.views.generic.base import TemplateView, View
-from django.core.paginator import InvalidPage, Paginator
+#from django.core.paginator import InvalidPage, Paginator
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
 from .forms import SearchForm
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Model form,like academic search?
 
@@ -76,6 +76,7 @@ class SearchHitView(View):
     form = SearchForm
     renderer = HitRendererText()
     template = 'need/search_hits.html'
+    page_count = 25
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -99,11 +100,26 @@ class SearchHitView(View):
                hit_data.append(self.indexdata_to_renderdata(r))
                
         hits = ''
+        page = request.GET.get('page')
         query = request.GET.get('search', None)
         if query:
             hit_data = []
             self.need.actions.read(self.search_fields, query, build_results)
-            hits = self.renderer.as_html(hit_data)
+            
+            pg = Paginator(hit_data, self.page_count)
+            try:
+                xo = pg.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                xo = pg.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                xo = pg.page(pg.num_pages)
+            #! these need to go to template
+            prv =  xo.previous_page_number if (xo.has_previous) else None
+            nxt =  xo.next_page_number if (xo.has_next) else None
+            
+            hits = self.renderer.as_html(xo)
         form = self.form(initial=query)
         return render(request, self.template, {'media': form.media + self.renderer.media, 'form': form, 'hits': hits})          
                  
@@ -119,6 +135,7 @@ class List(View):
     search_fields = ''
     renderer = HitRendererText()
     template = 'need/hits_list.html'
+    page_count = 25
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -141,11 +158,27 @@ class List(View):
                hit_data.append(self.indexdata_to_renderdata(r))
                
         hits = ''
+        page = request.GET.get('page')
         query = request.GET.get('search', None)
         if query:
             hit_data = []
             self.need.actions.read(self.search_fields, query, build_results)
-            hits = self.renderer.as_html(hit_data)
+
+            pg = Paginator(hit_data, self.page_count)
+            try:
+                xo = pg.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                xo = pg.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                xo = pg.page(pg.num_pages)
+
+            #! these need to go to template
+            prv =  xo.previous_page_number if (xo.has_previous) else None
+            nxt =  xo.next_page_number if (xo.has_next) else None
+            
+            hits = self.renderer.as_html(xo)
         return render(request, self.template, {'media': self.renderer.media, 'hits': hits})          
 
 

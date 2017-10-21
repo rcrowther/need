@@ -31,3 +31,13 @@
 
 {% endblock %}
 
+{% block footer %}
+    <div class="page-nav">
+    {% if prv %}
+            <a href="?page={{ prv }}">previous</a>
+    {% endif %}
+    {% if nxt %}
+            <a href="?page={{ nxt }}">next</a>
+    {% endif %}
+    </div>
+{% endblock %}
