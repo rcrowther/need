@@ -5,12 +5,19 @@ from django.forms.widgets import MediaDefiningClass
 
 
 #! base name for classes and name
+#! prefix?
 class BaseTextInputForm():
     '''
     good attrs: required maxlength classes name placeholder
     '''
-    def __init__(self, data=None, initial=None, 
-        attrs=None):
+    #? prefix is only for Django naespacing of Fields, I think?
+    #? does noting here, but moving towards complete API
+    def __init__(self, 
+        data=None, 
+        prefix=None,
+        initial=None, 
+        attrs=None
+        ):
         '''
         Data when form is bound
         '''
@@ -102,8 +109,12 @@ class SearchForm(TextInputForm):
     Single box search form.
     With pre-defined input configuration and CSS defaults.
     '''
-    def __init__(self, data=None, initial=None, 
-        attrs=None):
+    def __init__(self, 
+        data=None,
+        prefix=None,
+        initial=None, 
+        attrs=None
+        ):
         super().__init__(
             data, 
             initial, 

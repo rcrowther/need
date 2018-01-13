@@ -26,11 +26,13 @@ class BaseManager:
         self.pk_fieldname = opts.pk_field.name
         #self.name = 
 
+
+
 #! change schema?
 #! file locked version
 #! async version
 #! fuzzy search
-#!stem search
+#! stem search
 #! delete using fieldname
 class Manager(BaseManager):
     '''

@@ -1,9 +1,19 @@
-
 from django.utils.safestring import mark_safe
 from django.forms.widgets import MediaDefiningClass
+from  django.utils.html import conditional_escape, format_html
+
 
 #! escape?
 class HitRendererBase:
+    '''
+    Render data to look like search engine hits.
+    They render as HTML lists.
+    HitRenderers escape all to_html() data. They ignore surplus data, 
+    and the default templates insert defaults for missing data.
+    
+    @param element_template Template to use for each element of data
+    @param element_attributes Dict to add attributes to each HTML list tag
+    '''
     element_template = None
     element_attributes = {}
     
@@ -19,7 +29,7 @@ class HitRendererBase:
         else:
             element_attributes_render = ''
             
-        self._row_start = '<li {0}>'.format(element_attributes_render)
+        self._row_start = format_html('<li {0}>', element_attributes_render)
         self._row_end = '</li>'
 
     def _build_attrs(self, attrs):
@@ -29,15 +39,19 @@ class HitRendererBase:
         return ' '.join(b)
     
     def as_html(self, row_data):
+        '''
+        @param row_data [{}] data in dicts is formatted into the element_template (surplus is ignored)
+        '''
         b = []
         for data in row_data:
             row = '{0}{1}{2}'.format(
                 self._row_start,
-                self.element_template.format(**data),
+                format_html(self.element_template, **data),
                 self._row_end
             )
             b.append(row)
         return mark_safe('\n'.join(b))   
+    
     
     
 class HitRenderer(HitRendererBase, metaclass=MediaDefiningClass):

@@ -1,32 +1,15 @@
-from django.urls import reverse
 from django.shortcuts import render
-from django.http import Http404, HttpResponseRedirect
-
-
-
-from paper.need import PaperNeed
-
-from django import forms
-
+#from django.http import Http404, HttpResponseRedirect
 from django.views.generic.base import TemplateView, View
-#from django.core.paginator import InvalidPage, Paginator
-from django.db import models
+
 from django.core.exceptions import ImproperlyConfigured
-from .forms import SearchForm
+from ..forms import SearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-# Model form,like academic search?
+from ..renderers import HitRendererText
 
-from .renderers import HitRendererText
 
-#! what about zero return
-#! message for no return
-#! did you mean?
-#! why is multiple search fields not working?
-#! why is search term working?
-#! test rendered form aainst Form rendering
-#! template as full path is rough? TemplateView?
-#! pagination
+
 class SearchHitView(View):
     need = None
     search_fields = ''
@@ -79,10 +62,9 @@ class SearchHitView(View):
             hits = self.renderer.as_html(xo)
         form = self.form(initial=query)
         return render(request, self.template, {'media': form.media + self.renderer.media, 'form': form, 'hits': hits})          
-                 
-                    
-#################
-
+         
+         
+         
 class List(View):
     '''
     View to handle incoming GETs, with information delivered by query.
@@ -138,48 +120,3 @@ class List(View):
             hits = self.renderer.as_html(xo)
         return render(request, self.template, {'media': self.renderer.media, 'hits': hits})          
 
-
-##################################
-#! try on a URL
-
-from .forms import SearchForm
-
-def general_search(request):
-    if request.method == 'GET':
-        query = request.GET.get('search', None)
-        print('query:')
-        print(query)
-        if not query:
-            form = SearchForm()
-            return render(request, 'need/search.html', {'form': form})
-        else:
-            # 1. maybe do some pre-validation before we look in the index
-            # 2. Get some results  
-            # 3. redirect to some hits result page
-            return HttpResponseRedirect('/need/list?search=' + query)
-    return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
-
-
-class PaperSearchHitView(SearchHitView):
-    need = PaperNeed
-    search_fields = 'title'
-
-    def indexdata_to_renderdata(self, result):
-        return {'url' : "/paper/{}".format(result['id']), 'title': result['title'], 'teaser': 'forgot to store'}
-
-from .renderers import HitRendererImage
-  
-class PaperSearchHitImageView(SearchHitView):
-    need = PaperNeed
-    search_fields = 'title'
-    renderer = HitRendererImage()
-
-    def indexdata_to_renderdata(self, result):
-        return {'url' : "/paper/{}".format(result['id']), 'src': "/static/{}.jpg".format(result['id'])}
-  
-class PaperList(List):
-    need = PaperNeed
-    search_fields = 'title'
-
-    def indexdata_to_renderdata(self, result):
-        return {'url' : "/fireworks/{}".format(result['id']), 'title': result['title'], 'teaser': 'forgot to store'}

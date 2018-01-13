@@ -1,37 +1,5 @@
 
 
-Rendering Need classes as forms and results
--------------------------------------------
-The need app contains code to help render search forms and results.
-
-
-Hits listing
-~~~~~~~~~~~~
-A quick list of results from a Need e.g. ::
-
-    from need.views import List
-    
-    class FireworkList(List):
-        need = FireworkNeed
-        search_fields = 'title'
-
-    def indexdata_to_renderdata(self, result):
-        return {'url' : "/fireworks/{}".format(result['id']), 'title': result['title'], 'teaser': result['description']}
-    
-Internally, this uses some code called HitRendererText(). This code is described in detail below. Also, the tricky-looking indexdata_to_renderdata() method is mapping search results to what the template will use. In this case, we are defaulting many items, and using a stock template and CSS. The template wants a 'url', 'title', and 'teaser'. It doesn't care too much what they are, or what part of the search results are used, as long as the keys are there.
-
-The List class can be overriden in most ways, the Need, the template, the renderer, the CSS, etc. But go ahead, try the view. In urls.py, ::
-    
-    url(r'^list$', views.FireworkList.as_view(), name='list')
-
-The view works from a query. The keyword is 'search'. So try some url like, ::
-
-    fireworks/list?search=banger
-    
-Should return  string of results, rendered in  the same way as a general search-engine.
-
-
-
 Single search boxes
 ~~~~~~~~~~~~~~~~~~~
 Django's form code caused me a lot of problems for this app. The code is too smart and general. So you get, ::
@@ -134,7 +102,7 @@ Usually, at this point, to fill out a Django form, you would, ::
 
 But I have left this unfinished. For a form like this, the results are the delivery. There is no side-effect database modification step. So you would redirect to a listings page (like the admin lists). If you pasted the list view above, like this, ::
 
-from django.http import HttpResponseRedirect
+    from django.http import HttpResponseRedirect
 
     def general_search(request):
         if request.method == 'GET':
@@ -146,7 +114,7 @@ from django.http import HttpResponseRedirect
                 return HttpResponseRedirect('/fireworks/list?search=' + query)
         return HttpResponseNotAllowed("HTTP method {0} not allowed on this view".format(request.method))
 
-DRY yourself off with a reverse(), for illustration I'm explicit.
+DRY yourself off with reverse(). For illustration I'm explicit.
 
 That gives you a ready-made one page search, something like the front page of DuckDuckGo and Google. Another month of work and a team of five. However...
 
@@ -210,7 +178,9 @@ More strange Need devices. I'm not keen on the idea of a form that holds results
 
 This is a lot of predefined template and CSS in one place. You may prefer to look at the code, then go back to the basics and make your own. But SearchHitView will work with minimal setup, ::
     
-    
+    from need.views import SearchHitView
+    from .need import FireworkNeed
+
     class FireworkSearchHitView(SearchHitView):
         need = FireworkNeed
         search_fields = 'title'

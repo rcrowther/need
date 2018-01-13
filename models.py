@@ -118,7 +118,7 @@ class NeedOptions:
 class NeedMetaclass(DeclarativeFieldsMetaclass):
     def _validate_raw_opts(mcs, module, class_name, opts):
         if not settings.WHOOSH:
-            raise TypeError("Whoosh class  {0}.{1} must have an available setting 'WHOOSH' to define the base folder.".format(
+            raise TypeError("Need class  {0}.{1} must have an available setting 'WHOOSH' to define the base folder.".format(
                 module,
                 class_name
                 )
@@ -126,7 +126,7 @@ class NeedMetaclass(DeclarativeFieldsMetaclass):
         requested_fields = getattr(opts, 'fields', None)
         if requested_fields is None:
                 raise ImproperlyConfigured(
-                    "Whoosh class {0}.{1} doesn't declare a 'fields' attribute.".format(
+                    "Need class {0}.{1} doesn't declare a 'fields' attribute.".format(
                     module, 
                     class_name
                     )
@@ -245,7 +245,7 @@ class NeedMetaclass(DeclarativeFieldsMetaclass):
 
         
         
-class Whoosh(metaclass=NeedMetaclass):
+class Need(metaclass=NeedMetaclass):
     pass
 
 

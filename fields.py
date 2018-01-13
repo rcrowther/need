@@ -102,13 +102,13 @@ class TextField(TEXT):
                  sortable, lang, vector,
                  spelling_prefix)
                  
-class NGamField(NGRAM):
+class NGramField(NGRAM):
     def __init__(self, minsize=2, maxsize=4, stored=False, field_boost=1.0,
                  queryor=False, phrase=False, sortable=False):
         super().__init__(minsize, maxsize, stored, field_boost,
                  queryor, phrase, sortable)
 
-class NGamWordsField(NGRAMWORDS):
+class NGramWordsField(NGRAMWORDS):
     def __init__(self, minsize=2, maxsize=4, stored=False, field_boost=1.0,
                  tokenizer=None, at=None, queryor=False, sortable=False):
         super().__init__(minsize, maxsize, stored, field_boost,
