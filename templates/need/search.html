@@ -12,7 +12,6 @@
 {% block content %}
 <div id="search-form">
     <form action="" method="get">
-        {% csrf_token %}
         {{ form }}<input class="search-button" type="submit" value="{% trans "Search" %}"/>
     </form>
 </div>

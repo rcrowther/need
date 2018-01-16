@@ -9,9 +9,12 @@
 
 {% block header %}
 <div id="search-form">
-    <form action="" method="get">
-        {% csrf_token %}
-        {{ form }}<form action="" method="get"><input class="search-button" type="submit" value="{% trans "Search" %}"/>
+    <form action="" method="get" class="searchbox button-searchbox">
+        {{ form }}
+        <!--
+        <input class="button-search button-forward" type="submit" value="{% trans "Search" %}"/>
+        -->
+        <input class="button-search button-forward" type="submit" value="" %}"/>
     </form>
 </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django.utils.safestring import mark_safe
 from django.forms.widgets import MediaDefiningClass
-from  django.utils.html import conditional_escape, format_html
+from django.utils.html import conditional_escape, format_html
+from django.core.exceptions import ImproperlyConfigured
 
 
 #! escape?
@@ -77,3 +78,76 @@ class HitRendererImage(HitRenderer):
     element_template = '<a href="{url}"><img src="{src}"></a>'
     class Media:
         css = {'screen' : ('need/css/image_hits.css',)}
+
+
+
+
+class CharfieldGetFormRendererBase:
+  #<form {% if id_name %}id="{{ id_name }}_form" {% endif %}class="generic-form" action="{{ submit_url }}" method="post" {% if form.is_multipart %}enctype="multipart/form-data" {% endif %} novalidate>
+   # {% csrf_token %},
+    submit_url = ''
+    template = '<form action="{}" method="get" novalidate>{}</form>'
+    form_attrs = {}
+    name = None
+    value = ''
+    placeholder = ''
+    
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            print('setatt:')
+            print(k)
+            setattr(self, k, v)
+        if (not self.name):
+            self.__class__.__name__
+        if (not self.submit_url):
+            raise ImproperlyConfigured("{0} must have a 'submit_url' attribute defined.".format(
+                self.__class__.__name__
+                ))
+                            
+    def _build_attrs(self, attrs):
+        b = []         
+        for k,v in attrs.items():
+            b.append('{0}="{1}"'.format(k, v))
+        return ' '.join(b)
+        
+    def to_html(self):  
+        #{% if id_name %}id="{{ id_name }}_form" {% endif %}
+        input_html = '<input type="text" name="{0}"{1}{2}>'.format(
+          self.name if (self.name) else self.__class__.__name__,
+          ' value="{}"'.format(self.value) if self.value else '',
+          ' placeholder="{}"'.format(self.placeholder) if self.placeholder else '',
+          )
+          
+        o = '<form {} action="{}" method="get" novalidate>{}</form>'.format(
+            self._build_attrs(self.form_attrs),
+            self.submit_url,
+            input_html
+            )
+        return mark_safe(o)
+
+
+
+class CharfieldGetFormRenderer(CharfieldGetFormRendererBase, metaclass=MediaDefiningClass):
+    '''
+    Render rows of search results with media.
+    The action is in as_html. Returns HTML list items only. 
+    Must define element_template, a simple string 'format' template.
+    '''
+
+
+class SearchFormRenderer(CharfieldGetFormRenderer):
+    '''
+    Single box search form.
+    GET form with one charfield.
+    With pre-defined input configuration and CSS defaults.
+    '''
+    name = 'search'
+    placeholder= "Search"
+    
+    def __init__(self, **kwargs):
+        if (not 'form_attrs' in kwargs):
+            kwargs['form_attrs']={'class': 'searchbox tight-searchbox'}
+        return super().__init__(**kwargs)
+
+    class Media:
+        css = {'screen' : ('need/css/text_input.css',)}

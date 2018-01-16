@@ -8,10 +8,19 @@ from django.forms.widgets import MediaDefiningClass
 #! prefix?
 class BaseTextInputForm():
     '''
-    good attrs: required maxlength classes name placeholder
+    Djangos formbuild classes are smart, but too complex for a 
+    deliberately simple form like a search box. This case needs no 
+    instances, no field management, etc.
+
+    This class is a rebuild of Django's Form class. It contains one 
+    builtin field only, called 'data'. With only one field it has
+    no render options such as to_list() etc. It binds, verifies, errors, 
+    and renders like a Django Form, so (in Python) it's a Django Form.
+    
+    good attrs: required, maxlength, classes, name, placeholder
     '''
     #? prefix is only for Django naespacing of Fields, I think?
-    #? does noting here, but moving towards complete API
+    #? does nothing here, but moving towards complete API
     def __init__(self, 
         data=None, 
         prefix=None,
@@ -57,7 +66,7 @@ class BaseTextInputForm():
     def _html_output(self):      
         name = self.attrs.pop('name', None)
         value = self.format_value()
-        o = '<input type="text" name="{0}" {1} {2}>'.format(
+        o = '<input type="search" name="{0}" {1} {2}>'.format(
           name if (name) else self.__class__.__name__,
           'value="{0}"'.format(value) if value else '',
           self._build_attrs()
@@ -117,8 +126,8 @@ class SearchForm(TextInputForm):
         ):
         super().__init__(
             data, 
-            initial, 
-            attrs={'name':'search', 'class':'search-input', 'placeholder':"Search"}
+            initial,
+            attrs={'name':'search', 'maxlength':'256', 'placeholder':"Search"}
          )
     class Media:
         css = {'screen' : ('need/css/text_input.css',)}

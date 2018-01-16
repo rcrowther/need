@@ -8,7 +8,7 @@ Alternatives
 ------------
 Django-Woosh_ has existed for years with no issues. Much lighter weight than this app. Auto-inserts against the primary key. Works by adding a new manager to models to be indexed.
 
-Some people do not like Whoosh because it is slow. Programs that interface c code to Python, for example Xapian_, can be faster. Must be mentioned; Haystack_, which fronts several engines, including Whoosh and Xapian, into one Python/Django API. There is a comparison to these apps below.
+Some people do not like Whoosh because it is slow. Programs that interface C code to Python, for example Xapian_, can be faster. Must be mentioned; Haystack_, which fronts several engines, including Whoosh and Xapian, into one Python/Django API. There is a comparison to these apps below.
 
 
 
@@ -277,7 +277,7 @@ HitRenderer is a class-based renderer for Need results. It takes a Need result s
 
 HitRenderer will take a media class. This is handy, but the media must be mixed into the context to appear in templates (SearchHitView does this automatically).
 
-Has two subclasses, HitRendererText and HitRendererImage. When as_html() is called on them, they expect a list of dicts (or similar structure)expect three 
+Has two subclasses, HitRendererText and HitRendererImage. When as_html() is called on them, they expect a list of dicts (or similar structure).
 
 HitRendererText expects, ::
 
@@ -298,6 +298,30 @@ element_template
 element_attributes
     Dict to add attributes to each HTML list tag
     
+Prebuilt Forms
+++++++++++++++
+
+TextInputForm
+_____________
+Djangos formbuild classes are smart, but too complex for a deliberately simple form like a search box. This case needs no instances, no field management, etc. 
+
+This is a rebuild of Django's Form class. It contains one builtin field only, called 'data'. It binds, verifies, errors, and renders like a Django Form, so (in Python) it's a Django Form.
+
+SearchForm
+__________
+A TextInputForm with the name 'search', a placeholder 'Search', and some CSS to look similar to a search engine searchbox.
+
+Insert by ...
+
+
+In-page form renderers
+______________________
+When implementing a search box, many site designs try to improve user experience by placing the search box into the middel of another page, or in navigation bars. This is because some form of search, if implemented, should be available on the first possible pages.  
+
+CharfieldGetFormRenderer
+
+SearchFormRenderer
+
 .. _Xapian: https://xapian.org/
 .. _Haystack: http://haystacksearch.org/
 .. _Django-Woosh: https://github.com/JoeGermuska/django-whoosh/blob/master/django_whoosh/managers.py

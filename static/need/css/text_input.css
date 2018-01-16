@@ -13,61 +13,89 @@ line-height:18px;
 
 
 
-
-#search-form {
-max-width: 600px;
-margin: 0 auto 0 auto;
-text-align:right;
+/*
+ * .searchbox ~ .tight-searchbox| (
+ * .button-searchbox ~ (.button-magnifier|button-magnifier)
+ * )
+ */
+.searchbox {
+display:block;
+background-color: #fff;
 border-radius: 3px;
-background: #fff;
 border: 1px solid #ccc;
-padding: 0 0 0 1em;
+position: relative;
 }
 
-.search-input {
-display:inline-block;
+.tight-searchbox {
+padding: 0 0.75em;
+}
+
+.button-searchbox {
+padding: 0 36px 0 0.75em;
+}
+
+/* expanding inline */
+@media screen and (min-width: 500px) {
+.searchbox {
+max-width: 600px;
+margin: 0 auto 0 auto;
+}
+}
+
+.searchbox > input {
+width:100%;
 font-size:16px;
 font-weight:400;
-background: #fff;
+background-color: #fff;
 border: none;
-border-radius: 8px 8px 0 0;
-vertical-align: top;
-width:87%;
+/* border-radius: 8px 8px 0 0; */
+/* vertical-align: top; */
+/* width:87%; */
 height:34px;
 }
 
-.search-button {
-display:inline-block;
-vertical-align: top;
+
+.searchbox > .button-search {
+display:block;
 height: 34px;
-width: 12%;
-border: 1px solid #eee;
-background: #eee;
+width: 36px;
+border-radius: 0 3px 3px 0;
+position: absolute;
+top: 0;
+right:0;
 }
 
-.search-button:hover {
-border-top: 1px solid #999;
-border-left: 1px solid #999
-border-bottom: 1px solid #ccc;
-border-right: 1px solid #ccc;
-background: #ddd;
+.searchbox > .button-forward {
+background: url(/static/need/svg/forward.svg) no-repeat center center;
+}
+
+.searchbox > .button-magnifier {
+background: url(/static/need/svg/magnifier.svg) no-repeat center center;
+}
+
+.searchbox > .button-search:hover {
+border-left: 1px solid #999;
+background-color: #ddd;
+cursor: pointer;
 }
 
 /* small screen, stack the search */
 @media screen and (max-width: 500px) {
-#search-form {
+.searchbox {
+display:block;
 padding:0;
 margin: 0 1em;
 }
 
-.search-input {
+.searchbox > input {
 display:block;
 width:100%;
 }
 
-.search-button {
+.searchbox > .button-search {
 display:block;
+position: static;
 border-top: 1px solid #ccc;
 width:100%;
-    }
+}
 }
