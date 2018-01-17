@@ -129,9 +129,9 @@ class CharfieldGetFormRendererBase:
 
 class CharfieldGetFormRenderer(CharfieldGetFormRendererBase, metaclass=MediaDefiningClass):
     '''
-    Render rows of search results with media.
-    The action is in as_html. Returns HTML list items only. 
-    Must define element_template, a simple string 'format' template.
+    Renders HTML for a GET form surrounding a text input
+    Accepts media metadata.
+    Takes various useful HTML attributes directly on the class.
     '''
 
 

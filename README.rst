@@ -298,29 +298,67 @@ element_template
 element_attributes
     Dict to add attributes to each HTML list tag
     
+    
+    
+    
 Prebuilt Forms
-++++++++++++++
+~~~~~~~~~~~~~~
 
 TextInputForm
-_____________
+++++++++++++++
 Djangos formbuild classes are smart, but too complex for a deliberately simple form like a search box. This case needs no instances, no field management, etc. 
 
 This is a rebuild of Django's Form class. It contains one builtin field only, called 'data'. It binds, verifies, errors, and renders like a Django Form, so (in Python) it's a Django Form.
 
 SearchForm
-__________
+++++++++++
 A TextInputForm with the name 'search', a placeholder 'Search', and some CSS to look similar to a search engine searchbox.
 
 Insert by ...
 
 
 In-page form renderers
-______________________
-When implementing a search box, many site designs try to improve user experience by placing the search box into the middel of another page, or in navigation bars. This is because some form of search, if implemented, should be available on the first possible pages.  
+++++++++++++++++++++++
+When implementing a search box, many site designs try to improve user experience by placing the search box in the midst of another page, or in navigation bars. This is because some form of search, if implemented, should be available on the first possible pages.  
 
+These searches are often triggered by a shred of Javascript, but these renderers use the most general method, a small form. This will make an in-page redirect. Moreover, the rendered forms use a GET method (as do Google and a few other engines). This means there is no need for the usual heap of Form building. The classes are renderers.
+
+Of course, you could do this yourself, using a template. If you need custom style, or do not want a HTML form/GET method setup, you should make your own. But it's nice to have a prebuilt solution (if you've never tried, search boxes are a bit of a pain to make).
+
+You would probably add the renderer result, usuing to_html() to a context like this, ::
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        sform = SearchFormRenderer(
+            submit_url=reverse('firework-search')
+            )
+        ctx.update({
+        'searchform' : sform.to_html(),
+        'media': sform.media
+        })
+        return ctx
+        
+Then place '{{ searchform }}' somewhere in the template.
+ 
 CharfieldGetFormRenderer
+________________________
+
+Renders HTML for a GET form surrounding a text input. Accepts 'media' statements.
+
 
 SearchFormRenderer
+__________________
+
+CharfieldGetFormRenderer with defaults/predefinitions to look like an in-page search box. From start, looks like this,
+    
+
+
+.. figure:: https://raw.githubusercontent.com/rcrowther/need/master/text/images/rendered_searchbox.png
+    :width: 160 px
+    :alt: searchbox screenshot
+    :align: center
+
+
 
 .. _Xapian: https://xapian.org/
 .. _Haystack: http://haystacksearch.org/
