@@ -1,16 +1,18 @@
 
-#hits {
+.hits {
+/*
 min-width: 833px;
 margin: 0 6px;
+*/
 }
 
-#hits > li {
+.hits > li {
 display: inline-block;
 vertical-align:top;
 margin: 12px 6px;
 }
 
-#hits img {
+.hit-img {
 width: 220px;
 border: 0;
 }

@@ -1,6 +1,7 @@
+# Need a header~search solution 
 # Lots of documentation needed
 # Failed bulk write leaves writelock
-# Can bluk_write and write handle objects with surplus fields?
+# Can bulk_write and write handle objects with surplus fields?
 # Boost init with all necessary
 # filmstat returning reader closed?
 # SEE views.py

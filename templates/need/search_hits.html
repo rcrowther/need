@@ -1,10 +1,9 @@
-{% extends "need_base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% load i18n %} 
 
 {% block head_tags %}
-{{ media }}
-<link rel="stylesheet" type="text/css" href="{% static "need/css/search_hits.css" %}" />
+<link rel="stylesheet" type="text/css" href={% static "need/css/search_hits.css" %} />
 {% endblock %}
 
 {% block header %}
@@ -12,26 +11,25 @@
     <form action="" method="get" class="searchbox button-searchbox">
         {{ form }}
         <!--
-        <input class="button-search button-forward" type="submit" value="{% trans "Search" %}"/>
+        <input class="button-search button-magnifier" type="submit" value=""/>
         -->
-        <input class="button-search button-forward" type="submit" value="" %}"/>
+        <input class="button-search button-forward" type="submit" value=""/>
     </form>
 </div>
 {% endblock %}
 
 
 {% block content %}
-{% if suggestions %}
-    <p>Did you mean,</p>
-    {{ suggestions }}
-{% endif %}
-
-{% if hits %}
-<ul id="hits">
-    {{ hits }}
-</ul>
-{% endif %}
-
+    {% if suggestions %}
+        <p>Did you mean,</p>
+        {{ suggestions }}
+    {% endif %}
+    
+    {% if hits %}
+    <ul id="hits">
+        {{ hits }}
+    </ul>
+    {% endif %}
 {% endblock %}
 
 {% block footer %}

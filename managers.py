@@ -77,7 +77,7 @@ class Manager(BaseManager):
         start = time.time()
         writer.commit()
         end = time.time()
-        print('comit', ' took', str(end - start), 'time')
+        print('commit', ' took', str(end - start), 'time')
         ix.close()
 
     def delete(self, key):
@@ -131,9 +131,9 @@ class Manager(BaseManager):
 
     def read(self, fieldnames, query, callback):
         start = time.time()
+        ix = open_dir(self._need_base, self._need_index)
         end = time.time()
         print('opendir', ' took', str(end - start), 'time')
-        ix = open_dir(self._need_base, self._need_index)
         r = None
         with ix.searcher() as searcher:
             start = time.time()
@@ -142,7 +142,7 @@ class Manager(BaseManager):
             end = time.time()
             print('query', ' took', str(end - start), 'time')
             callback(searcher.search(query))
-        ix.close()
+        #ix.close()
 
     def size(self):
         ix = open_dir(self._need_base, self._need_index)

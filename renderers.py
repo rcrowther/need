@@ -66,7 +66,7 @@ class HitRendererText(HitRenderer):
     '''
     row_data = [{'url': ..., 'title': ..., 'teaser': ... }]
     '''
-    element_template = '<h3><a href="{url}">{title}</a></h3><cite class="url_display">{url}</cite><div class="teaser">{teaser}</div>'
+    element_template = '<h3 class="hit-title"><a href="{url}">{title}</a></h3><cite class="hit-url">{url}</cite><div class="hit-teaser">{teaser}</div>'
     class Media:
         css = {'screen' : ('need/css/text_hits.css',)}
         
@@ -75,7 +75,7 @@ class HitRendererImage(HitRenderer):
     '''
     row_data = [{'url': ..., 'src': ...}]
     '''
-    element_template = '<a href="{url}"><img src="{src}"></a>'
+    element_template = '<a href="{url}"><img class="hit-img" src="{src}"></a>'
     class Media:
         css = {'screen' : ('need/css/image_hits.css',)}
 
