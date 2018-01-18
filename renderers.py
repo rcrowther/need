@@ -151,3 +151,31 @@ class SearchFormRenderer(CharfieldGetFormRenderer):
 
     class Media:
         css = {'screen' : ('need/css/text_input.css',)}
+
+
+
+
+from django.views.generic.base import ContextMixin
+from django.urls import reverse
+
+
+
+
+class SearchFormMixin(ContextMixin):
+    '''
+    A no-button searchbox, 
+    ready formatted
+    '''
+    search_submit_viewname = None
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        sform = SearchFormRenderer(
+            submit_url=reverse(self.search_submit_viewname)
+            )
+        kwargs['searchform'] = sform.to_html()
+        if 'media' in kwargs:
+            kwargs['media'] = kwargs['media'] + sform.media
+        else:
+            kwargs['media'] = sform.media
+        return kwargs

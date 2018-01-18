@@ -178,7 +178,7 @@ class SearchHitView(TemplateView, HitsMixin):
         
         
          
-class List(TemplateView, HitsMixin):
+class ListView(TemplateView, HitsMixin):
     '''
     View to handle incoming GETs, with information delivered by query.
     Builtin one page template.

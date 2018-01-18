@@ -203,24 +203,25 @@ Rendering Need classes as forms and results
 -------------------------------------------
 The need app contains code to help render search forms and results.
 
+First, two views. These are both full Django views. You can alter with the stock CSS, swap the templates, override get_context_data() to add extra material etc.
 
-List - a hits listing
-~~~~~~~~~~~~~~~~~~~~~
+ListView - a hits listing
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 A quick list of results from a Need e.g. ::
 
     from need import List
     from .need import FireworkNeed
 
-    class FireworkSearchList(List):
+    class FireworkSearchListView(List):
         need = FireworkNeed
         search_fields = 'title'
 
     def indexdata_to_renderdata(self, result):
         return {'url' : "/fireworks/{}".format(result['id']), 'title': result['title'], 'teaser': result['description']}
     
-Internally, this uses some code called HitRendererText(). This code is described in detail below. Also, the tricky-looking indexdata_to_renderdata() method is mapping search results to what the template will use (a limited context manager). In this case, we are defaulting most items. It doesn't care too much what they are, or what part of the search results are used, as long as the keys are there.
+Internally, this uses some code called HitRendererText(). This code is described below. Also, the tricky-looking indexdata_to_renderdata() method is mapping search results to variables the template will use. In this case, we are defaulting most items. The method doesn't care too much what the variables are called, or what part of the search results are used, as long as the keys are there.
 
-The List class can be overriden in most ways, the Need, the template, the renderer, the CSS, etc. But go ahead, try the view. In urls.py, ::
+The ListView class can be overriden in most ways, the Need, the template, the renderer, the CSS, etc. But go ahead, try the view. In urls.py, ::
     
     url(r'^list$', views.FireworkSearchList.as_view(), name='list')
 
@@ -306,7 +307,7 @@ Prebuilt Forms
 
 TextInputForm
 ++++++++++++++
-Djangos formbuild classes are smart, but too complex for a deliberately simple form like a search box. This case needs no instances, no field management, etc. 
+Django's formbuild classes are smart, but too complex for a deliberately simple form like a search box. This case needs no instances, no field management, etc. 
 
 This is a rebuild of Django's Form class. It contains one builtin field only, called 'data'. It binds, verifies, errors, and renders like a Django Form, so (in Python) it's a Django Form.
 
@@ -351,13 +352,34 @@ __________________
 
 CharfieldGetFormRenderer with defaults/predefinitions to look like an in-page search box. From start, looks like this,
     
-
-
 .. figure:: https://raw.githubusercontent.com/rcrowther/need/master/text/images/rendered_searchbox.png
     :width: 160 px
     :alt: searchbox screenshot
     :align: center
 
+
+
+SearchFormMixin
+_______________
+
+Limited, but convenient. Set a submit URL name|View on a subclass, ::
+
+    class FireworkSearchFormMixin(SearchFormMixin):
+        search_submit_viewname = 'firework-search'
+
+
+Mix into a view, which must be at least a TemplateView (View is not enough), ::
+
+    class FireworkView(DetailView, FireworkSearchFormMixin):
+        #pk_url_kwarg = 'pk'
+        model = Firework
+        template_name="firework/firework_detail.html"
+    
+In the template, render, ::
+
+    {{ searchform }}
+ 
+That's it. Which may be useful if you want to load a searchbox into many views. But, currently, you can't change how it looks.
 
 
 .. _Xapian: https://xapian.org/

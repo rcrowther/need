@@ -1,4 +1,5 @@
-# Need a header~search solution 
+# More CSS work, splitting and namespacing
+#? List is ListView?
 # Lots of documentation needed
 # Failed bulk write leaves writelock
 # Can bulk_write and write handle objects with surplus fields?
