@@ -5,6 +5,9 @@ from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, SimpleParser
 from datetime import datetime, timedelta
 import time
+from django.db import models
+from django.forms.models import model_to_dict
+
 
 #! auto-init with this data
 class BaseManager:    
@@ -54,17 +57,26 @@ class Manager(BaseManager):
         end = time.time()
         print('writer', 'took', str(end - start), 'time')
         for e in it:
+            # expected inputs to dict with string values 
+            if (issubclass(e.__class__, models.Model)):
+                e = model_to_dict(e)
+            data = {f : str(e[f]) for f in self._schema_fields}
             writer.add_document(e)
         writer.commit()      
         ix.close()
 
-    def add(self, **fields):
+    def add(self, data):
         '''
         Write a document.
         Ignores keys not in schema. No data for unprovided schema keys.
         
-        @param fields keys for the schema, values for values. 
+        @param data object or dict of values. 
         '''
+        # expected inputs to dict with string values 
+        if (issubclass(data.__class__, models.Model)):
+            data = model_to_dict(data)
+        data = {f : str(data[f]) for f in self._schema_fields}
+        
         start = time.time()
         ix = open_dir(self._need_base, self._need_index)
         end = time.time()
@@ -73,7 +85,7 @@ class Manager(BaseManager):
         writer = ix.writer()
         end = time.time()
         print('writer', ' took', str(end - start), 'time')
-        writer.add_document(**fields)
+        writer.add_document(**data)
         start = time.time()
         writer.commit()
         end = time.time()
@@ -83,23 +95,23 @@ class Manager(BaseManager):
     def delete(self, key):
         '''
         Delete a document.
-        Match on any key.
         
-        @param fieldname key to match against
-        @param text match value. 
+        @param key to match against pk field.
         '''
         # unusable on non-Model indexes
         # will throw error due to self.pk_fieldname?
         # assert/except?
+        # expected inputs to dict with string values 
+        key = str(key)
         ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
         writer.delete_by_term(self.pk_fieldname, key, searcher=None)
         writer.commit() 
         ix.close() 
         
-    def bulk_delete(self, fieldname, text):
+    def delete_when(self, fieldname, text):
         '''
-        Delete a document.
+        Delete documents.
         Match on any key.
         
         @param fieldname key to match against
@@ -109,22 +121,26 @@ class Manager(BaseManager):
         writer = ix.writer()
         writer.delete_by_term(fieldname, text, searcher=None)
         writer.commit() 
-        ix.close()        
+        ix.close()
 
-    def merge(self, **fields):
+    def merge(self, data):
         '''
         Merge a document.
         Ignores keys not in schema. No data for unprovided schema keys.
         Checks for unique keys then matches against parameters.
         Slower than add(). Will create if entry does not exist.
         
-        @param fields keys for the schema, values for values. 
+        @param data object or dict of values.
         '''
         # "It is safe to use ``update_document`` in place of ``add_document``; if
         # there is no existing document to replace, it simply does an add."
+        # expected inputs to dict with string values 
+        if (issubclass(data.__class__, models.Model)):
+            data = model_to_dict(data)
+        data = {f : str(data[f]) for f in self._schema_fields}
         ix = open_dir(self._need_base, self._need_index)
         writer = ix.writer()
-        writer.update_document(**fields)
+        writer.update_document(**data)
         writer.commit() 
         ix.close()
 
@@ -237,6 +253,12 @@ class BlockingManager(Manager):
         self.ix = open_dir(self._need_base, self._need_index)
         
     def bulk_add(self, it):
+        def to_dict(data):
+            # expected inputs to dict with string values 
+            if (issubclass(e.__class__, models.Model)):
+                e = model_to_dict(e)
+            return {f : str(e[f]) for f in self._schema_fields}
+        it = [to_dict(data) for data in it]
         self.threadLock.acquire()
         writer = self.ix.writer()
         self.threadLock.release()
@@ -244,39 +266,42 @@ class BlockingManager(Manager):
             writer.add_document(e)
         writer.commit()      
 
-    def add(self, **fields):
+    def add(self, data):
         '''
         Write a document.
         Ignores keys not in schema. No data for unprovided schema keys.
         
-        @param fields keys for the schema, values for values. 
+        @param data object or dict of values. 
         '''
+        # expected inputs to dict with string values 
+        if (issubclass(data.__class__, models.Model)):
+            data = model_to_dict(data)
+        data = {f : str(data[f]) for f in self._schema_fields}
         start = time.time()
         self.threadLock.acquire()
         end = time.time()
         print('aquire', ' took', str(end - start), 'time')
         writer = self.ix.writer()
         self.threadLock.release()
-        writer.add_document(**fields)
+        writer.add_document(**data)
         writer.commit()
         
     def delete(self, key):
         '''
         Delete a document.
-        Match on any key.
         
-        @param fieldname key to match against
-        @param text match value. 
+        @param key to match against pk field. 
         '''
+        key = str(key)
         self.threadLock.acquire()
         writer = self.ix.writer()
         self.threadLock.release()
         writer.delete_by_term(self.pk_fieldname, key, searcher=None)
         writer.commit()
 
-    def bulk_delete(self, fieldname, text):
+    def delete_when(self, fieldname, text):
         '''
-        Delete a document.
+        Delete documents.
         Match on any key.
         
         @param fieldname key to match against
@@ -288,19 +313,23 @@ class BlockingManager(Manager):
         writer.delete_by_term(fieldname, text, searcher=None)
         writer.commit()
         
-    def merge(self, **fields):
+    def merge(self, **data):
         '''
         Merge a document.
         Ignores keys not in schema. No data for unprovided schema keys.
         Checks for unique keys then matches against parameters.
         Slower than add(). Will create if entry does not exist.
         
-        @param fields keys for the schema, values for values. 
+        @param data object or dict of values. 
         '''
+        # expected inputs to dict with string values 
+        if (issubclass(data.__class__, models.Model)):
+            data = model_to_dict(data)
+        data = {f : str(data[f]) for f in self._schema_fields}
         self.threadLock.acquire()
         writer = self.ix.writer()
         self.threadLock.release()
-        writer.update_document(**fields)
+        writer.update_document(**data)
         writer.commit()
 
     def read(self, fieldnames, query, callback):

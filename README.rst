@@ -137,11 +137,14 @@ The default is Manager. The blocking versions are for multi-threading, discussed
 Manager offers a simple CRUD interface,
 
 - bulk_add(it)
-- add(**fields)
+- add(data)
 - bulk_delete(fieldname, text)
-- merge(**fields)
+- merge(data)
 - read(field, query, callback)
 - size(self)
+
+A note about the supply of data. Whoosh methods are founded in the index builder, and strict; format must be of kwargs, keys must match the schema, values must be stringified. At a computational cost, the Need app is forgiving. Any dict of data will be ok, non-schema entries are ignored, and all data is stringified. The methods will also accept Django models, which are broken into dicts to be normalized. 
+
 
 So, ::
 
@@ -178,9 +181,42 @@ ManagerManager managers offer methods probably useful only for admin, currently,
 
 
 
-Auto-edits
-~~~~~~~~~~
-TODO: signals
+Loading data to indexes
+~~~~~~~~~~~~~~~~~~~~~~~~~
+It is not the business of any index builder to say how to make entries into an index. There may be bulk considerations, cron jobs, sharded databases, and many other considerations.
+
+However, for small sites, it would be nice to auto-load model data to an index. This can be done by Django signals (the app Django-Woosh_ does this automatically). Follow directions at https://docs.djangoproject.com/en/2.0/topics/signals/, or,
+
+Auto handling
++++++++++++++
+I'm not explaining the below. Put this in need.py. Adapt to suit, ::
+
+
+    from django.db.models.signals import post_save, post_delete
+    from django.dispatch import receiver
+    
+    @receiver(post_save, sender=Review)
+    def review_register(sender, **kwargs):
+        if (kwargs['created']):
+            ReviewNeed.actions.add(kwargs['instance'])
+    
+    @receiver(post_delete, sender=Review)
+    def review_unregister(sender, **kwargs):
+        pk = kwargs['instance'].pk
+        ReviewNeed.actions.delete(pk)
+
+Remember, the Need app can accept models and 'pk' indications on it's manager methods.
+
+Now put this in app.py, ::
+    
+    class FilmstatConfig(AppConfig):
+        name = 'filmstat'
+    
+        def ready(self):
+            from .need import review_register
+            from .need import review_unregister
+
+Now, every time data is saved or deleted from a model table, the index is updated.
 
 
 Making queries - read()
