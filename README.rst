@@ -183,38 +183,38 @@ ManagerManager managers offer methods probably useful only for admin, currently,
 
 Loading data to indexes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-It is not the business of any index builder to say how to make entries into an index. There may be bulk considerations, cron jobs, sharded databases, and many other considerations.
+It is not the business of any index builder to say how to make entries into an index. Bulk entries may be better, cron jobs, sharded databases, and many other considerations.
 
 However, for small sites, it would be nice to auto-load model data to an index. This can be done by Django signals (the app Django-Woosh_ does this automatically). Follow directions at https://docs.djangoproject.com/en/2.0/topics/signals/, or,
 
 Auto handling
 +++++++++++++
-I'm not explaining the below. Put this in need.py. Adapt to suit, ::
+I'm not explaining the below. Put this in need.py, adapt to suit, ::
 
 
     from django.db.models.signals import post_save, post_delete
     from django.dispatch import receiver
     
-    @receiver(post_save, sender=Review)
-    def review_register(sender, **kwargs):
+    @receiver(post_save, sender=Firework)
+    def firework_register(sender, **kwargs):
         if (kwargs['created']):
-            ReviewNeed.actions.add(kwargs['instance'])
+            FireworkNeed.actions.add(kwargs['instance'])
     
-    @receiver(post_delete, sender=Review)
-    def review_unregister(sender, **kwargs):
+    @receiver(post_delete, sender=Firework)
+    def firework_unregister(sender, **kwargs):
         pk = kwargs['instance'].pk
-        ReviewNeed.actions.delete(pk)
+        FireworkNeed.actions.delete(pk)
 
 Remember, the Need app can accept models and 'pk' indications on it's manager methods.
 
-Now put this in app.py, ::
+Put this in app.py, ::
     
-    class FilmstatConfig(AppConfig):
-        name = 'filmstat'
+    class FireworkConfig(AppConfig):
+        name = 'firework'
     
         def ready(self):
-            from .need import review_register
-            from .need import review_unregister
+            from .need import firework_register
+            from .need import firework_unregister
 
 Now, every time data is saved or deleted from a model table, the index is updated.
 
